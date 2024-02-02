@@ -32,29 +32,44 @@ class PartsProduct extends Model
 
     protected $table = 'parts_products';
 
-    protected static $partsProducts;
+    protected static $partsProduct;
     protected static $files;
     protected static $file;
     protected static $fileName;
     protected static $directory;
+    protected static  $sub_images;
 
 
-    public static function saveOrUpdatePartsProduct($request, $id = null)
+    public static function saveOrUpdatePartsProduct($request, $id = null,$partsProduct=null)
     {
 
         $image = [];
 
-        if (self::$files = $request->file('sub_images')) {
-            foreach (self::$files as self::$file) {
+        if (self::$sub_images = $request->file('sub_images')) {
+            // unlink();
+            if(self::$sub_images)
+        {
+            if (isset($partsProduct->sub_images))
+            {
+                if(file_exists($partsProduct->sub_images))
+                {
+                    unlink($partsProduct->sub_images);
+                }
+            }
+            foreach (self::$sub_images as self::$file) {
                 self::$fileName = self::$file->getClientOriginalName();
                 self::$directory =
                     './admin/uploaded-files/parts-management/parts-product-sub-images/';
                 self::$file->move(self::$directory, self::$fileName);
                 $image[] = self::$directory . self::$fileName;
                 // return  self::$fileName;
-            }
+            }}} 
+            else{
+            
+                $image[]= $partsProduct->sub_images;
         }
-
+        
+    
         PartsProduct::updateOrCreate(['id' => $id], [
             'parts_brand_category_id' =>$request->parts_brand_category_id,
             'title'                   => $request->title,
@@ -68,7 +83,12 @@ class PartsProduct extends Model
             'sub_images' =>json_encode($image),
             'status'                  => $request->status == 'on' ? 1 : 0,
         ]);
+
     }
+
+    
+    
+
 
     public function testimonials()
     {
